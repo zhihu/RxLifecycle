@@ -3,6 +3,8 @@
 
 This library is a **non-invasive** version of [RxLifecycle](https://github.com/trello/RxLifecycle). It can help you to automatically complete the observable sequences based on `Activity` or `Fragment` lifecycle.
 
+**Supports only RxJava 2 now.**
+
 ### Usage
 
 Use the `Transformer`s provided. `bind(your activity or fragment).with(observable type)`.
