@@ -1,11 +1,11 @@
 # rxlifecycle (non-invasive)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0.html) [![Release](https://img.shields.io/github/release/nekocode/RxLifecycle.svg?label=Jitpack)](https://jitpack.io/#nekocode/RxLifecycle)
 
-This library is a **non-invasive** version of [RxLifecycle](https://github.com/trello/RxLifecycle). It can help you to automatically complete the observable sequences based on `Activity` or `Fragment` lifecycle.
+This library is a **non-invasive** version of [RxLifecycle](https://github.com/trello/RxLifecycle). It can help you to automatically complete the observable sequences based on `Activity` or `Fragment`'s lifecycle.
 
 **Supports only RxJava 2 now.**
 
-### Usage
+## Usage
 
 Use the `Transformer`s provided. `bind(your activity or fragment).with(observable type)`.
 
@@ -32,22 +32,22 @@ Observable.interval(0, 2, TimeUnit.SECONDS)
         });
 ```
 
-That's all. You needn't to extend your activity or fragment.
+**That's all. You needn't to extend your activity or fragment.**
 
-You can also observe the lifecycle events with the `.asFlowable()` or `.asObservable()` methods.
+You can also observe the lifecycle events by using the `.asFlowable()` or `.asObservable()` methods to convert the `RxLifecycle` to a `Flowable` or `Observable`.
 
 ```
 RxLifecycle.bind(this)
         .asFlowable()
         .subscribe(new Consumer<Integer>() {
             @Override
-            public void accept(@LifecycleState.Int Integer event) throws Exception {
+            public void accept(@LifecycleEvent.Int Integer event) throws Exception {
                 switch (event) {
-                    case LifecycleState.ON_START:
+                    case LifecycleEvent.ON_START:
                         toast("Your activity is started.");
                         break;
 
-                    case LifecycleState.ON_STOP:
+                    case LifecycleEvent.ON_STOP:
                         toast("Your activity is stopped.");
                         break;
                 }
