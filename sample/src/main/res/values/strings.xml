@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">RxLifecycle</string>
+    <string name="tip">Tip: Try to finish the activity or roate the screen when an obserable is emitting items.</string>
+    <string name="button1">Test Flowable</string>
+    <string name="text1">Create a Flowable that will emit an item every 2 seconds.</string>
+    <string name="button2">Test Observable</string>
+    <string name="text2">Create a Observable that will emit an item every 2 seconds.</string>
+    <string name="button3">Test Completable</string>
+    <string name="text3">Create a Completable that will complete after 3 seconds.</string>
+    <string name="button4">Test Single</string>
+    <string name="text4">Create a Single that will emit a single item after 3 seconds.</string>
+    <string name="button5">Test Maybe</string>
+    <string name="text5">Create a Maybe that will emit a single item after 3 seconds.</string>
+</resources>
