@@ -8,11 +8,11 @@ This library is a **non-invasive** version of [RxLifecycle](https://github.com/t
 Use the `Transformer`s provided. `bind(your activity or fragment).with(observable type)`.
 
 ```
-RxLifecycle.bind(your activity or fragment).withFlowable()
-RxLifecycle.bind(your activity or fragment).withObservable()
-RxLifecycle.bind(your activity or fragment).withCompletable()
-RxLifecycle.bind(your activity or fragment).withSingle()
-RxLifecycle.bind(your activity or fragment).withMaybe()
+RxLifecycle.bind(activity).withFlowable()
+RxLifecycle.bind(activity).withObservable()
+RxLifecycle.bind(activity).withCompletable()
+RxLifecycle.bind(activity).withSingle()
+RxLifecycle.bind(activity).withMaybe()
 ```
 
 And then compose it to your original observable.
@@ -20,7 +20,7 @@ And then compose it to your original observable.
 ```
 Observable.interval(0, 2, TimeUnit.SECONDS)
         .subscribeOn(Schedulers.computation())
-        .compose(RxLifecycle.bind(this).<Long>withObservable())
+        .compose(RxLifecycle.bind(MainActivity.this).<Long>withObservable())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Consumer<Long>() {
             @Override
