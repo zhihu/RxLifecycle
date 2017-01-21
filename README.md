@@ -53,13 +53,13 @@ RxLifecycle.bind(this)
         });
 ```
 
-### Sample
+## Sample
 
 Check out the [sample](sample/src/main/java/cn/nekocode/rxlifecycle/sample/MainActivity.java) for more detail.
 
 ![](art/preview.png)
 
-### Using with gradle
+## Using with gradle
 - Add the JitPack repository to your `build.gradle` repositories:
 
 ```gradle
