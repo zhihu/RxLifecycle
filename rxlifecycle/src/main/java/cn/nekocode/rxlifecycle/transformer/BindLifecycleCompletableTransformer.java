@@ -17,7 +17,7 @@ package cn.nekocode.rxlifecycle.transformer;
 
 import android.support.annotation.NonNull;
 
-import cn.nekocode.rxlifecycle.LifecycleEvent;
+import cn.nekocode.rxlifecycle.LifecyclePublisher;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.CompletableTransformer;
@@ -44,10 +44,10 @@ public class BindLifecycleCompletableTransformer<T> implements CompletableTransf
         return upstream.ambWith(
                 lifecycleBehavior.filter(new Predicate<Integer>() {
                     @Override
-                    public boolean test(@LifecycleEvent.Int Integer event) throws Exception {
-                        return event == LifecycleEvent.ON_DESTROY_VIEW ||
-                                event == LifecycleEvent.ON_DESTROY ||
-                                event == LifecycleEvent.ON_DETACH;
+                    public boolean test(@LifecyclePublisher.Event Integer event) throws Exception {
+                        return event == LifecyclePublisher.ON_DESTROY_VIEW ||
+                                event == LifecyclePublisher.ON_DESTROY ||
+                                event == LifecyclePublisher.ON_DETACH;
                     }
                 }).take(1).flatMapCompletable(new Function<Integer, Completable>() {
                     @Override

@@ -55,6 +55,8 @@ RxLifecycle.bind(this)
         });
 ```
 
+In addition, you can also bind observables to the `FragmentManager` or [`LifecyclePublisher`](rxlifecycle/src/main/java/cn/nekocode/rxlifecycle/LifecyclePublisher.java).
+
 ## Sample
 
 Check out the [sample](sample/src/main/java/cn/nekocode/rxlifecycle/sample/MainActivity.java) for more detail.

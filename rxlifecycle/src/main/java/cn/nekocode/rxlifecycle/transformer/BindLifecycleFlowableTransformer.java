@@ -19,7 +19,7 @@ import android.support.annotation.NonNull;
 
 import org.reactivestreams.Publisher;
 
-import cn.nekocode.rxlifecycle.LifecycleEvent;
+import cn.nekocode.rxlifecycle.LifecyclePublisher;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
 import io.reactivex.functions.Predicate;
@@ -44,10 +44,10 @@ public class BindLifecycleFlowableTransformer<T> implements FlowableTransformer<
         return upstream.takeUntil(
                 lifecycleBehavior.skipWhile(new Predicate<Integer>() {
                     @Override
-                    public boolean test(@LifecycleEvent.Int Integer event) throws Exception {
-                        return event != LifecycleEvent.ON_DESTROY_VIEW &&
-                                event != LifecycleEvent.ON_DESTROY &&
-                                event != LifecycleEvent.ON_DETACH;
+                    public boolean test(@LifecyclePublisher.Event Integer event) throws Exception {
+                        return event != LifecyclePublisher.ON_DESTROY_VIEW &&
+                                event != LifecyclePublisher.ON_DESTROY &&
+                                event != LifecyclePublisher.ON_DETACH;
                     }
                 })
         );

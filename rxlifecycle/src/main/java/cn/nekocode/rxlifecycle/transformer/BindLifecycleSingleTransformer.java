@@ -17,7 +17,7 @@ package cn.nekocode.rxlifecycle.transformer;
 
 import android.support.annotation.NonNull;
 
-import cn.nekocode.rxlifecycle.LifecycleEvent;
+import cn.nekocode.rxlifecycle.LifecyclePublisher;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.SingleTransformer;
@@ -43,10 +43,10 @@ public class BindLifecycleSingleTransformer<T> implements SingleTransformer<T, T
         return upstream.takeUntil(
                 lifecycleBehavior.skipWhile(new Predicate<Integer>() {
                     @Override
-                    public boolean test(@LifecycleEvent.Int Integer event) throws Exception {
-                        return event != LifecycleEvent.ON_DESTROY_VIEW &&
-                                event != LifecycleEvent.ON_DESTROY &&
-                                event != LifecycleEvent.ON_DETACH;
+                    public boolean test(@LifecyclePublisher.Event Integer event) throws Exception {
+                        return event != LifecyclePublisher.ON_DESTROY_VIEW &&
+                                event != LifecyclePublisher.ON_DESTROY &&
+                                event != LifecyclePublisher.ON_DETACH;
                     }
                 })
         );

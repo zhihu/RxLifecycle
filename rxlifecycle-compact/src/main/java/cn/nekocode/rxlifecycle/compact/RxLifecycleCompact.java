@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
+import cn.nekocode.rxlifecycle.LifecyclePublisher;
 import cn.nekocode.rxlifecycle.transformer.BindLifecycleCompletableTransformer;
 import cn.nekocode.rxlifecycle.transformer.BindLifecycleFlowableTransformer;
 import cn.nekocode.rxlifecycle.transformer.BindLifecycleMaybeTransformer;
@@ -39,7 +40,7 @@ import io.reactivex.SingleTransformer;
  */
 public class RxLifecycleCompact {
     private static final String FRAGMENT_TAG = "_BINDING_V4_FRAGMENT_";
-    private final BindingV4Fragment bindingV4Fragment;
+    private final LifecyclePublisher lifecyclePublisher;
 
     public static RxLifecycleCompact bind(@NonNull AppCompatActivity targetActivity) {
         return bind(targetActivity.getSupportFragmentManager());
@@ -64,43 +65,46 @@ public class RxLifecycleCompact {
             transaction.commit();
         }
 
-        return new RxLifecycleCompact(fragment);
+        return bind(fragment.getLifecyclePublisher());
+    }
+
+    public static RxLifecycleCompact bind(@NonNull LifecyclePublisher lifecyclePublisher) {
+        return new RxLifecycleCompact(lifecyclePublisher);
     }
 
     private RxLifecycleCompact() throws IllegalAccessException {
         throw new IllegalAccessException();
     }
 
-    private RxLifecycleCompact(@NonNull BindingV4Fragment fragment) {
-        this.bindingV4Fragment = fragment;
-    }
-
-
-    public Observable<Integer> asObservable() {
-        return bindingV4Fragment.getLifecycleBehavior().toObservable();
+    private RxLifecycleCompact(@NonNull LifecyclePublisher lifecyclePublisher) {
+        this.lifecyclePublisher = lifecyclePublisher;
     }
 
     public Flowable<Integer> asFlowable() {
-        return bindingV4Fragment.getLifecycleBehavior();
+        return lifecyclePublisher.getBehavior();
+    }
+
+    public Observable<Integer> asObservable() {
+        return lifecyclePublisher.getBehavior().toObservable();
     }
 
     public <T> FlowableTransformer<T, T> withFlowable() {
-        return new BindLifecycleFlowableTransformer<T>(bindingV4Fragment.getLifecycleBehavior());
+        return new BindLifecycleFlowableTransformer<T>(lifecyclePublisher.getBehavior());
     }
 
     public <T> ObservableTransformer<T, T> withObservable() {
-        return new BindLifecycleObservableTransformer<T>(bindingV4Fragment.getLifecycleBehavior());
+        return new BindLifecycleObservableTransformer<T>(lifecyclePublisher.getBehavior());
     }
 
     public CompletableTransformer withCompletable() {
-        return new BindLifecycleCompletableTransformer(bindingV4Fragment.getLifecycleBehavior());
+        return new BindLifecycleCompletableTransformer(lifecyclePublisher.getBehavior());
     }
 
     public <T> SingleTransformer<T, T> withSingle() {
-        return new BindLifecycleSingleTransformer<T>(bindingV4Fragment.getLifecycleBehavior());
+        return new BindLifecycleSingleTransformer<T>(lifecyclePublisher.getBehavior());
     }
 
     public <T> MaybeTransformer<T, T> withMaybe() {
-        return new BindLifecycleMaybeTransformer<T>(bindingV4Fragment.getLifecycleBehavior());
+        return new BindLifecycleMaybeTransformer<T>(lifecyclePublisher.getBehavior());
     }
 }

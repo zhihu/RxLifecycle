@@ -17,7 +17,7 @@ package cn.nekocode.rxlifecycle.transformer;
 
 import android.support.annotation.NonNull;
 
-import cn.nekocode.rxlifecycle.LifecycleEvent;
+import cn.nekocode.rxlifecycle.LifecyclePublisher;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
@@ -43,10 +43,10 @@ public class BindLifecycleObservableTransformer<T> implements ObservableTransfor
         return upstream.takeUntil(
                 lifecycleBehavior.skipWhile(new Predicate<Integer>() {
                     @Override
-                    public boolean test(@LifecycleEvent.Int Integer event) throws Exception {
-                        return event != LifecycleEvent.ON_DESTROY_VIEW &&
-                                event != LifecycleEvent.ON_DESTROY &&
-                                event != LifecycleEvent.ON_DETACH;
+                    public boolean test(@LifecyclePublisher.Event Integer event) throws Exception {
+                        return event != LifecyclePublisher.ON_DESTROY_VIEW &&
+                                event != LifecyclePublisher.ON_DESTROY &&
+                                event != LifecyclePublisher.ON_DETACH;
                     }
                 }).toObservable()
         );

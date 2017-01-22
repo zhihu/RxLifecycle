@@ -24,86 +24,85 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import cn.nekocode.rxlifecycle.LifecycleEvent;
-import io.reactivex.processors.BehaviorProcessor;
+import cn.nekocode.rxlifecycle.LifecyclePublisher;
 
 /**
  * @author nekocode (nekocode.cn@gmail.com)
  */
 public class BindingV4Fragment extends Fragment {
-    private BehaviorProcessor<Integer> lifecycleBehavior = BehaviorProcessor.create();
+    private final LifecyclePublisher lifecyclePublisher = new LifecyclePublisher();
 
     public BindingV4Fragment() {
     }
 
-    public BehaviorProcessor<Integer> getLifecycleBehavior() {
-        return lifecycleBehavior;
+    public LifecyclePublisher getLifecyclePublisher() {
+        return lifecyclePublisher;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        lifecycleBehavior.onNext(LifecycleEvent.ON_ATTACH);
+        lifecyclePublisher.onAttach();
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        lifecycleBehavior.onNext(LifecycleEvent.ON_ATTACH);
+        lifecyclePublisher.onAttach();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        lifecycleBehavior.onNext(LifecycleEvent.ON_CREATE);
+        lifecyclePublisher.onCreate();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        lifecycleBehavior.onNext(LifecycleEvent.ON_CREATE_VIEW);
+        lifecyclePublisher.onCreateView();
         return null;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        lifecycleBehavior.onNext(LifecycleEvent.ON_START);
+        lifecyclePublisher.onStart();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        lifecycleBehavior.onNext(LifecycleEvent.ON_RESUME);
+        lifecyclePublisher.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        lifecycleBehavior.onNext(LifecycleEvent.ON_PAUSE);
+        lifecyclePublisher.onPause();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        lifecycleBehavior.onNext(LifecycleEvent.ON_STOP);
+        lifecyclePublisher.onStop();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        lifecycleBehavior.onNext(LifecycleEvent.ON_DESTROY_VIEW);
+        lifecyclePublisher.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        lifecycleBehavior.onNext(LifecycleEvent.ON_DESTROY);
+        lifecyclePublisher.onDestroy();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        lifecycleBehavior.onNext(LifecycleEvent.ON_DETACH);
+        lifecyclePublisher.onDetach();
     }
 }
