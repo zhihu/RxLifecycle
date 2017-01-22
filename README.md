@@ -41,13 +41,13 @@ RxLifecycle.bind(this)
         .asFlowable()
         .subscribe(new Consumer<Integer>() {
             @Override
-            public void accept(@LifecycleEvent.Int Integer event) throws Exception {
+            public void accept(@LifecyclePublisher.Event Integer event) throws Exception {
                 switch (event) {
-                    case LifecycleEvent.ON_START:
+                    case LifecyclePublisher.ON_START:
                         toast("Your activity is started.");
                         break;
 
-                    case LifecycleEvent.ON_STOP:
+                    case LifecyclePublisher.ON_STOP:
                         toast("Your activity is stopped.");
                         break;
                 }
