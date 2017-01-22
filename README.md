@@ -79,7 +79,7 @@ dependencies {
 }
 ```
 
-- (Optional) Add the below library if you need to support api 9 and later. Besides, if you already add support-v4 dependency, I will also suggest you to use this compact library, and use the `RxLifecycleCompact` instend of the `RxLifecycle`.
+- (Optional) Add the below library if you need to support api 9 and later. Besides, if you already add support-v4 dependency, I will also suggest you to use this compact library, and then use the `RxLifecycleCompact` instead of the `RxLifecycle`.
 
 ```
 dependencies {
