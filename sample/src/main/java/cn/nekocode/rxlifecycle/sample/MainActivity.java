@@ -109,8 +109,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void testFlowable() {
         Flowable.interval(0, 2, TimeUnit.SECONDS)
-                .subscribeOn(Schedulers.computation())
                 .compose(RxLifecycle.bind(this).<Long>withFlowable())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Long>() {
                     @Override
@@ -122,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void testObservable() {
         Observable.interval(0, 2, TimeUnit.SECONDS)
-                .subscribeOn(Schedulers.computation())
                 .compose(RxLifecycle.bind(this).<Long>withObservable())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Long>() {
                     @Override

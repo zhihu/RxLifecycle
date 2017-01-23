@@ -21,8 +21,8 @@ And then compose it to your original observable.
 
 ```
 Observable.interval(0, 2, TimeUnit.SECONDS)
-        .subscribeOn(Schedulers.computation())
         .compose(RxLifecycle.bind(MainActivity.this).<Long>withObservable())
+        .subscribeOn(Schedulers.computation())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Consumer<Long>() {
             @Override
