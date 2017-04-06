@@ -88,3 +88,8 @@ dependencies {
     compile 'com.github.nekocode.rxlifecycle:rxlifecycle-compact:{lastest-version}'
 }
 ```
+
+## Contributing
+ - To contribute with a small fix, simply create a pull request.
+ - Better to open an issue to discuss with the team and the community if you're intended to work on something BIG.
+ - Please follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
