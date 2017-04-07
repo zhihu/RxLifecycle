@@ -1,7 +1,7 @@
 # RxLifecycle (non-invasive)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0.html) [![Release](https://jitpack.io/v/nekocode/rxlifecycle.svg)](https://jitpack.io/#nekocode/rxlifecycle)
 
-This library is a **non-invasive** version of [RxLifecycle](https://github.com/trello/RxLifecycle). It can help you to automatically complete the observable sequences based on `Activity` or `Fragment`'s lifecycle.
+This library is a **non-invasive** version of [RxLifecycle](https://github.com/trello/RxLifecycle). It can help you to automatically complete the observable sequences based on `Activity` or `Fragment`'s lifecycle. There is [an article](https://zhuanlan.zhihu.com/p/24992118) about how it works.
 
 **Supports only RxJava 2 now.**
 
