@@ -33,4 +33,4 @@ dependencies {
 }
 ```
 
-This project is licensed under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html). The lastest version of the library is [![Release](https://jitpack.io/v/nekocode/rxlifecycle.svg)](https://jitpack.io/#nekocode/rxlifecycle).
+This project is licensed under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html). The lastest version of the library is [![Release](https://jitpack.io/v/nekocode/rxlifecycle.svg)](https://jitpack.io/#zhihu/rxlifecycle).
