@@ -18,38 +18,133 @@ package cn.nekocode.rxlifecycle.transformer;
 import android.support.annotation.NonNull;
 
 import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
-import cn.nekocode.rxlifecycle.LifecyclePublisher;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+
+import cn.nekocode.rxlifecycle.LifecycleEvent;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
-import io.reactivex.functions.Predicate;
-import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.disposables.DisposableHelper;
+import io.reactivex.internal.subscriptions.SubscriptionHelper;
+import io.reactivex.internal.util.AtomicThrowable;
+import io.reactivex.internal.util.HalfSerializer;
 
 /**
  * @author nekocode (nekocode.cn@gmail.com)
  */
-public class BindLifecycleFlowableTransformer<T> implements FlowableTransformer<T, T> {
-    private final BehaviorProcessor<Integer> lifecycleBehavior;
+public class BindLifecycleFlowableTransformer<T> extends AbstractBindLifecycleTransformer
+        implements FlowableTransformer<T, T> {
 
-    private BindLifecycleFlowableTransformer() throws IllegalAccessException {
-        throw new IllegalAccessException();
-    }
+    public BindLifecycleFlowableTransformer(
+            @NonNull Observable<LifecycleEvent> lifecycleObservable,
+            @NonNull LifecycleEvent event) {
 
-    public BindLifecycleFlowableTransformer(@NonNull BehaviorProcessor<Integer> lifecycleBehavior) {
-        this.lifecycleBehavior = lifecycleBehavior;
+        super(lifecycleObservable, event);
     }
 
     @Override
     public Publisher<T> apply(final Flowable<T> upstream) {
-        return upstream.takeUntil(
-                lifecycleBehavior.skipWhile(new Predicate<Integer>() {
-                    @Override
-                    public boolean test(@LifecyclePublisher.Event Integer event) throws Exception {
-                        return event != LifecyclePublisher.ON_DESTROY_VIEW &&
-                                event != LifecyclePublisher.ON_DESTROY &&
-                                event != LifecyclePublisher.ON_DETACH;
-                    }
-                })
-        );
+        return new BindLifecycleFlowable(upstream);
+    }
+
+
+    private class BindLifecycleFlowable extends Flowable<T> {
+        private final Publisher<T> mUpstream;
+
+
+        private BindLifecycleFlowable(Publisher<T> upstream) {
+            this.mUpstream = upstream;
+        }
+
+        @Override
+        protected void subscribeActual(final Subscriber<? super T> downstream) {
+            final MainSubscriber mainSubscriber = new MainSubscriber(downstream);
+
+            downstream.onSubscribe(mainSubscriber);
+
+            receiveEventCompletable().subscribe(mainSubscriber.other);
+            mUpstream.subscribe(mainSubscriber);
+        }
+
+
+        final class MainSubscriber extends AtomicInteger implements Subscriber<T>, Subscription {
+            private static final long serialVersionUID = 919611990130321642L;
+            final Subscriber<? super T> actual;
+            final OtherObserver other;
+            final AtomicReference<Subscription> s;
+            final AtomicLong requested;
+            final AtomicThrowable error;
+
+
+            MainSubscriber(Subscriber<? super T> actual) {
+                this.actual = actual;
+                this.requested = new AtomicLong();
+                this.s = new AtomicReference<>();
+                this.other = new OtherObserver();
+                this.error = new AtomicThrowable();
+            }
+
+            @Override
+            public void onSubscribe(Subscription s) {
+                SubscriptionHelper.deferredSetOnce(this.s, requested, s);
+            }
+
+            @Override
+            public void onNext(T t) {
+                HalfSerializer.onNext(actual, t, this, error);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                DisposableHelper.dispose(other);
+                HalfSerializer.onError(actual, t, this, error);
+            }
+
+            @Override
+            public void onComplete() {
+                DisposableHelper.dispose(other);
+                HalfSerializer.onComplete(actual, this, error);
+            }
+
+            @Override
+            public void request(long n) {
+                SubscriptionHelper.deferredRequest(s, requested, n);
+            }
+
+            @Override
+            public void cancel() {
+                SubscriptionHelper.cancel(s);
+                DisposableHelper.dispose(other);
+            }
+
+            final class OtherObserver extends AtomicReference<Disposable> implements CompletableObserver {
+                private static final long serialVersionUID = -6684536082750051972L;
+
+
+                @Override
+                public void onSubscribe(Disposable d) {
+                    DisposableHelper.setOnce(this, d);
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    DisposableHelper.dispose(this);
+                    SubscriptionHelper.cancel(s);
+                }
+
+                @Override
+                public void onComplete() {
+                    DisposableHelper.dispose(this);
+                    SubscriptionHelper.cancel(s);
+                }
+            }
+        }
     }
 }

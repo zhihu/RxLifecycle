@@ -1,1 +1,1 @@
-include ':sample', ':rxlifecycle', ':rxlifecycle-compact'
+include ':example', ':rxlifecycle', ':rxlifecycle-compact'

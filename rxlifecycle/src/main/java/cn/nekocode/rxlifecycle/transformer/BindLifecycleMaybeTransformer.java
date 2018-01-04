@@ -17,38 +17,91 @@ package cn.nekocode.rxlifecycle.transformer;
 
 import android.support.annotation.NonNull;
 
-import cn.nekocode.rxlifecycle.LifecyclePublisher;
+import cn.nekocode.rxlifecycle.LifecycleEvent;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeObserver;
 import io.reactivex.MaybeSource;
 import io.reactivex.MaybeTransformer;
-import io.reactivex.functions.Predicate;
-import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.disposables.ArrayCompositeDisposable;
 
 /**
  * @author nekocode (nekocode.cn@gmail.com)
  */
-public class BindLifecycleMaybeTransformer<T> implements MaybeTransformer<T, T> {
-    private final BehaviorProcessor<Integer> lifecycleBehavior;
+public class BindLifecycleMaybeTransformer<T> extends AbstractBindLifecycleTransformer
+        implements MaybeTransformer<T, T> {
 
-    private BindLifecycleMaybeTransformer() throws IllegalAccessException {
-        throw new IllegalAccessException();
-    }
+    public BindLifecycleMaybeTransformer(
+            @NonNull Observable<LifecycleEvent> lifecycleObservable,
+            @NonNull LifecycleEvent event) {
 
-    public BindLifecycleMaybeTransformer(@NonNull BehaviorProcessor<Integer> lifecycleBehavior) {
-        this.lifecycleBehavior = lifecycleBehavior;
+        super(lifecycleObservable, event);
     }
 
     @Override
     public MaybeSource<T> apply(Maybe<T> upstream) {
-        return upstream.takeUntil(
-                lifecycleBehavior.skipWhile(new Predicate<Integer>() {
-                    @Override
-                    public boolean test(@LifecyclePublisher.Event Integer event) throws Exception {
-                        return event != LifecyclePublisher.ON_DESTROY_VIEW &&
-                                event != LifecyclePublisher.ON_DESTROY &&
-                                event != LifecyclePublisher.ON_DETACH;
-                    }
-                })
-        );
+        return new BindLifecycleMaybe(upstream);
+    }
+
+
+    private class BindLifecycleMaybe extends Maybe<T> {
+        private final MaybeSource<T> mUpstream;
+
+
+        private BindLifecycleMaybe(MaybeSource<T> upstream) {
+            this.mUpstream = upstream;
+        }
+
+        @Override
+        protected void subscribeActual(final MaybeObserver<? super T> downstream) {
+            final ArrayCompositeDisposable frc = new ArrayCompositeDisposable(2);
+
+            downstream.onSubscribe(frc);
+
+            receiveEventCompletable()
+                    .subscribe(new CompletableObserver() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            frc.setResource(0, d);
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            frc.dispose();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            frc.dispose();
+                        }
+                    });
+
+            mUpstream.subscribe(new MaybeObserver<T>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+                    frc.setResource(1, d);
+                }
+
+                @Override
+                public void onSuccess(T t) {
+                    frc.dispose();
+                    downstream.onSuccess(t);
+                }
+
+                @Override
+                public void onComplete() {
+                    frc.dispose();
+                    downstream.onComplete();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    frc.dispose();
+                    downstream.onError(e);
+                }
+            });
+        }
     }
 }

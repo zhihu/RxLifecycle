@@ -17,38 +17,85 @@ package cn.nekocode.rxlifecycle.transformer;
 
 import android.support.annotation.NonNull;
 
-import cn.nekocode.rxlifecycle.LifecyclePublisher;
+import cn.nekocode.rxlifecycle.LifecycleEvent;
+import io.reactivex.CompletableObserver;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.SingleObserver;
 import io.reactivex.SingleSource;
 import io.reactivex.SingleTransformer;
-import io.reactivex.functions.Predicate;
-import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.disposables.ArrayCompositeDisposable;
 
 /**
  * @author nekocode (nekocode.cn@gmail.com)
  */
-public class BindLifecycleSingleTransformer<T> implements SingleTransformer<T, T> {
-    private final BehaviorProcessor<Integer> lifecycleBehavior;
+public class BindLifecycleSingleTransformer<T> extends AbstractBindLifecycleTransformer
+        implements SingleTransformer<T, T> {
 
-    private BindLifecycleSingleTransformer() throws IllegalAccessException {
-        throw new IllegalAccessException();
-    }
+    public BindLifecycleSingleTransformer(
+            @NonNull Observable<LifecycleEvent> lifecycleObservable,
+            @NonNull LifecycleEvent event) {
 
-    public BindLifecycleSingleTransformer(@NonNull BehaviorProcessor<Integer> lifecycleBehavior) {
-        this.lifecycleBehavior = lifecycleBehavior;
+        super(lifecycleObservable, event);
     }
 
     @Override
     public SingleSource<T> apply(Single<T> upstream) {
-        return upstream.takeUntil(
-                lifecycleBehavior.skipWhile(new Predicate<Integer>() {
-                    @Override
-                    public boolean test(@LifecyclePublisher.Event Integer event) throws Exception {
-                        return event != LifecyclePublisher.ON_DESTROY_VIEW &&
-                                event != LifecyclePublisher.ON_DESTROY &&
-                                event != LifecyclePublisher.ON_DETACH;
-                    }
-                })
-        );
+        return new BindLifecycleSingle(upstream);
+    }
+
+
+    private class BindLifecycleSingle extends Single<T> {
+        private final SingleSource<T> mUpstream;
+
+
+        private BindLifecycleSingle(SingleSource<T> upstream) {
+            this.mUpstream = upstream;
+        }
+
+        @Override
+        protected void subscribeActual(final SingleObserver<? super T> downstream) {
+            final ArrayCompositeDisposable frc = new ArrayCompositeDisposable(2);
+
+            downstream.onSubscribe(frc);
+
+            receiveEventCompletable()
+                    .subscribe(new CompletableObserver() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            frc.setResource(0, d);
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            frc.dispose();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            frc.dispose();
+                        }
+                    });
+
+            mUpstream.subscribe(new SingleObserver<T>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+                    frc.setResource(1, d);
+                }
+
+                @Override
+                public void onSuccess(T t) {
+                    frc.dispose();
+                    downstream.onSuccess(t);
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    frc.dispose();
+                    downstream.onError(e);
+                }
+            });
+        }
     }
 }

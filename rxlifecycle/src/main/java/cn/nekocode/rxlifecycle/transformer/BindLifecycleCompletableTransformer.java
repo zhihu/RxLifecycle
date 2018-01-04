@@ -17,44 +17,84 @@ package cn.nekocode.rxlifecycle.transformer;
 
 import android.support.annotation.NonNull;
 
-import cn.nekocode.rxlifecycle.LifecyclePublisher;
+import cn.nekocode.rxlifecycle.LifecycleEvent;
 import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableSource;
 import io.reactivex.CompletableTransformer;
-import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
-import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.disposables.ArrayCompositeDisposable;
 
 /**
  * @author nekocode (nekocode.cn@gmail.com)
  */
-public class BindLifecycleCompletableTransformer<T> implements CompletableTransformer {
-    private final BehaviorProcessor<Integer> lifecycleBehavior;
+public class BindLifecycleCompletableTransformer<T> extends AbstractBindLifecycleTransformer
+        implements CompletableTransformer {
 
-    private BindLifecycleCompletableTransformer() throws IllegalAccessException {
-        throw new IllegalAccessException();
-    }
+    public BindLifecycleCompletableTransformer(
+            @NonNull Observable<LifecycleEvent> lifecycleObservable,
+            @NonNull LifecycleEvent event) {
 
-    public BindLifecycleCompletableTransformer(@NonNull BehaviorProcessor<Integer> lifecycleBehavior) {
-        this.lifecycleBehavior = lifecycleBehavior;
+        super(lifecycleObservable, event);
     }
 
     @Override
     public CompletableSource apply(Completable upstream) {
-        return upstream.ambWith(
-                lifecycleBehavior.filter(new Predicate<Integer>() {
-                    @Override
-                    public boolean test(@LifecyclePublisher.Event Integer event) throws Exception {
-                        return event == LifecyclePublisher.ON_DESTROY_VIEW ||
-                                event == LifecyclePublisher.ON_DESTROY ||
-                                event == LifecyclePublisher.ON_DETACH;
-                    }
-                }).take(1).flatMapCompletable(new Function<Integer, Completable>() {
-                    @Override
-                    public Completable apply(Integer flowable) throws Exception {
-                        return Completable.complete();
-                    }
-                })
-        );
+        return new BindLifecycleCompletable(upstream);
+    }
+
+
+    private class BindLifecycleCompletable extends Completable {
+        private final CompletableSource mUpstream;
+
+
+        private BindLifecycleCompletable(CompletableSource upstream) {
+            this.mUpstream = upstream;
+        }
+
+        @Override
+        protected void subscribeActual(final CompletableObserver downstream) {
+            final ArrayCompositeDisposable frc = new ArrayCompositeDisposable(2);
+
+            downstream.onSubscribe(frc);
+
+            receiveEventCompletable()
+                    .subscribe(new CompletableObserver() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            frc.setResource(0, d);
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            frc.dispose();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            frc.dispose();
+                        }
+                    });
+
+            mUpstream.subscribe(new CompletableObserver() {
+                @Override
+                public void onSubscribe(Disposable d) {
+                    frc.setResource(1, d);
+                }
+
+                @Override
+                public void onComplete() {
+                    frc.dispose();
+                    downstream.onComplete();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    frc.dispose();
+                    downstream.onError(e);
+                }
+            });
+        }
     }
 }

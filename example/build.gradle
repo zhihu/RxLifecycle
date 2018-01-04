@@ -5,8 +5,8 @@ android {
     buildToolsVersion BUILD_TOOLS_VERSION
     defaultConfig {
         applicationId "cn.nekocode.rxlifecycle.sample"
-        minSdkVersion 11
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
     }

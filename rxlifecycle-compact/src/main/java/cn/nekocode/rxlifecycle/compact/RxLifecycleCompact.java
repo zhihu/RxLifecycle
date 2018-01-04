@@ -21,12 +21,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
-import cn.nekocode.rxlifecycle.LifecyclePublisher;
+import cn.nekocode.rxlifecycle.LifecycleEvent;
 import cn.nekocode.rxlifecycle.transformer.BindLifecycleCompletableTransformer;
 import cn.nekocode.rxlifecycle.transformer.BindLifecycleFlowableTransformer;
 import cn.nekocode.rxlifecycle.transformer.BindLifecycleMaybeTransformer;
 import cn.nekocode.rxlifecycle.transformer.BindLifecycleObservableTransformer;
 import cn.nekocode.rxlifecycle.transformer.BindLifecycleSingleTransformer;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.CompletableTransformer;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
@@ -40,7 +41,12 @@ import io.reactivex.SingleTransformer;
  */
 public class RxLifecycleCompact {
     private static final String FRAGMENT_TAG = "_BINDING_V4_FRAGMENT_";
-    private final LifecyclePublisher lifecyclePublisher;
+    private final Observable<LifecycleEvent> mLifecycleObservable;
+
+
+    public static RxLifecycleCompact bind(@NonNull Observable<LifecycleEvent> lifecycleObservable) {
+        return new RxLifecycleCompact(lifecycleObservable);
+    }
 
     public static RxLifecycleCompact bind(@NonNull AppCompatActivity targetActivity) {
         return bind(targetActivity.getSupportFragmentManager());
@@ -65,46 +71,38 @@ public class RxLifecycleCompact {
             transaction.commit();
         }
 
-        return bind(fragment.getLifecyclePublisher());
+        return bind(fragment.getLifecycleBehavior());
     }
 
-    public static RxLifecycleCompact bind(@NonNull LifecyclePublisher lifecyclePublisher) {
-        return new RxLifecycleCompact(lifecyclePublisher);
+    private RxLifecycleCompact(Observable<LifecycleEvent> lifecycleObservable) {
+        this.mLifecycleObservable = lifecycleObservable;
     }
 
-    private RxLifecycleCompact() throws IllegalAccessException {
-        throw new IllegalAccessException();
+    public Flowable<LifecycleEvent> toFlowable(BackpressureStrategy strategy) {
+        return mLifecycleObservable.toFlowable(strategy);
     }
 
-    private RxLifecycleCompact(@NonNull LifecyclePublisher lifecyclePublisher) {
-        this.lifecyclePublisher = lifecyclePublisher;
+    public Observable<LifecycleEvent> toObservable() {
+        return mLifecycleObservable;
     }
 
-    public Flowable<Integer> asFlowable() {
-        return lifecyclePublisher.getBehavior();
+    public <T> FlowableTransformer<T, T> cancelFlowableWhen(LifecycleEvent event) {
+        return new BindLifecycleFlowableTransformer<T>(mLifecycleObservable, event);
     }
 
-    public Observable<Integer> asObservable() {
-        return lifecyclePublisher.getBehavior().toObservable();
+    public <T> ObservableTransformer<T, T> disposeObservableWhen(LifecycleEvent event) {
+        return new BindLifecycleObservableTransformer<T>(mLifecycleObservable, event);
     }
 
-    public <T> FlowableTransformer<T, T> withFlowable() {
-        return new BindLifecycleFlowableTransformer<T>(lifecyclePublisher.getBehavior());
+    public CompletableTransformer disposeCompletableWhen(LifecycleEvent event) {
+        return new BindLifecycleCompletableTransformer(mLifecycleObservable, event);
     }
 
-    public <T> ObservableTransformer<T, T> withObservable() {
-        return new BindLifecycleObservableTransformer<T>(lifecyclePublisher.getBehavior());
+    public <T> SingleTransformer<T, T> disposeSingleWhen(LifecycleEvent event) {
+        return new BindLifecycleSingleTransformer<T>(mLifecycleObservable, event);
     }
 
-    public CompletableTransformer withCompletable() {
-        return new BindLifecycleCompletableTransformer(lifecyclePublisher.getBehavior());
-    }
-
-    public <T> SingleTransformer<T, T> withSingle() {
-        return new BindLifecycleSingleTransformer<T>(lifecyclePublisher.getBehavior());
-    }
-
-    public <T> MaybeTransformer<T, T> withMaybe() {
-        return new BindLifecycleMaybeTransformer<T>(lifecyclePublisher.getBehavior());
+    public <T> MaybeTransformer<T, T> disposeMaybeWhen(LifecycleEvent event) {
+        return new BindLifecycleMaybeTransformer<T>(mLifecycleObservable, event);
     }
 }
