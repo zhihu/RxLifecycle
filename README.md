@@ -1,4 +1,4 @@
-RxLifecyle is a library that can help you to unsubscribe the observable sequences automatically when a activity or fragment is destroying. There are some differences between this library and [trello/RxLifecycle](https://github.com/trello/RxLifecycle).
+RxLifecyle is a library that can help you to unsubscribe the observable sequences automatically when a activity or fragment is destroying. There are some differences between this library and [trello/RxLifecycle](https://github.com/trello/RxLifecycle):
 
 - This library will actually unsubscribe the sequence (See [here](https://github.com/trello/RxLifecycle#unsubscription)). It means that the downstream observer will not receive `onComplete()`, `onError()`... anymore when the unsubscription occurs.
 
@@ -8,11 +8,12 @@ The simplest usage:
 
 ```java
 Observable.interval(0, 2, TimeUnit.SECONDS)
-        .compose(RxLifecycle.bind(MainActivity.this).<Long>disposeObservableWhen(LifecycleEvent.DESTROY_VIEW))
+        .compose(RxLifecycle.bind(this)
+                .<Long>disposeObservableWhen(LifecycleEvent.DESTROY_VIEW))
         .subscribe();
 ```
 
-More usages can be found in the [sample](sample/src/main/java/cn/nekocode/rxlifecycle/example/MainActivity.java).
+More usages can be found in the [example](example/src/main/java/cn/nekocode/rxlifecycle/sample/MainActivity.java).
 
 ![](art/preview.png)
 
