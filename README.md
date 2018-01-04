@@ -1,95 +1,36 @@
-# RxLifecycle (non-invasive)
-[![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0.html) [![Release](https://jitpack.io/v/nekocode/rxlifecycle.svg)](https://jitpack.io/#nekocode/rxlifecycle)
+RxLifecyle is a library that can help you to unsubscribe the observable sequences automatically when a activity or fragment is destroying. There are some differences between this library and [trello/RxLifecycle](https://github.com/trello/RxLifecycle).
 
-This library is a **non-invasive** version of [RxLifecycle](https://github.com/trello/RxLifecycle). It can help you to automatically complete the observable sequences based on `Activity` or `Fragment`'s lifecycle. There is [an article](https://zhuanlan.zhihu.com/p/24992118) about how it works.
+- This library will actually unsubscribe the sequence (See [here](https://github.com/trello/RxLifecycle#unsubscription)). It means that the downstream observer will not receive `onComplete()`, `onError()`... anymore when the unsubscription occurs.
 
-**Supports only RxJava 2 now.**
+- This library needn't you to inherit any activity or fragment. It will insert a non-gui fragment to your activity or fragment to listen the lifecycle events.
 
-## Usage
+The simplest usage:
 
-Use the `Transformer`s provided. `bind(your activity or fragment).with(observable type)`.
-
-```
-RxLifecycle.bind(activity).withFlowable()
-RxLifecycle.bind(activity).withObservable()
-RxLifecycle.bind(activity).withCompletable()
-RxLifecycle.bind(activity).withSingle()
-RxLifecycle.bind(activity).withMaybe()
-```
-
-And then compose it to your original observable.
-
-```
+```java
 Observable.interval(0, 2, TimeUnit.SECONDS)
-        .compose(RxLifecycle.bind(MainActivity.this).<Long>withObservable())
-        .subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Consumer<Long>() {
-            @Override
-            public void accept(Long n) throws Exception {
-                toast("Observable -> " + n.toString());
-            }
-        });
+        .compose(RxLifecycle.bind(MainActivity.this).<Long>disposeObservableWhen(LifecycleEvent.DESTROY_VIEW))
+        .subscribe();
 ```
 
-**That's all. You needn't to extend your activity or fragment.**
-
-You can also observe the lifecycle events by using the `.asFlowable()` or `.asObservable()` methods to convert the `RxLifecycle` to a `Flowable` or `Observable`.
-
-```
-RxLifecycle.bind(this)
-        .asFlowable()
-        .subscribe(new Consumer<Integer>() {
-            @Override
-            public void accept(@LifecyclePublisher.Event Integer event) throws Exception {
-                switch (event) {
-                    case LifecyclePublisher.ON_START:
-                        toast("Your activity is started.");
-                        break;
-
-                    case LifecyclePublisher.ON_STOP:
-                        toast("Your activity is stopped.");
-                        break;
-                }
-            }
-        });
-```
-
-In addition, you can also bind observables to the `FragmentManager` or [`LifecyclePublisher`](rxlifecycle/src/main/java/cn/nekocode/rxlifecycle/LifecyclePublisher.java).
-
-## Sample
-
-Check out the [sample](sample/src/main/java/cn/nekocode/rxlifecycle/sample/MainActivity.java) for more detail.
+More usages can be found in the [sample](sample/src/main/java/cn/nekocode/rxlifecycle/example/MainActivity.java).
 
 ![](art/preview.png)
 
-## Using with gradle
-- Add the JitPack repository to your `build.gradle` repositories:
+To integrate this library to your project, you need add the JitPack repository to `build.gradle` repositories firstly.
 
 ```gradle
 repositories {
-    // ...
     maven { url "https://jitpack.io" }
 }
 ```
 
-- Add the core dependency:
+And then add library dependencies:
 
-```
+```gradle
 dependencies {
     compile 'com.github.nekocode.rxlifecycle:rxlifecycle:{lastest-version}'
+    compile 'com.github.nekocode.rxlifecycle:rxlifecycle-compact:{lastest-version}' // Optional
 }
 ```
 
-- (Optional) Add the below library if you need to support api 9 and later. Besides, if you already add support-v4 dependency, I will also suggest you to use this compact library, and then use the `RxLifecycleCompact` instead of the `RxLifecycle`.
-
-```
-dependencies {
-    compile 'com.github.nekocode.rxlifecycle:rxlifecycle-compact:{lastest-version}'
-}
-```
-
-## Contributing
- - To contribute with a small fix, simply create a pull request.
- - Better to open an issue to discuss with the team and the community if you're intended to work on something BIG.
- - Please follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
+This project is licensed under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html). The lastest version of the library is [![Release](https://jitpack.io/v/nekocode/rxlifecycle.svg)](https://jitpack.io/#nekocode/rxlifecycle).
