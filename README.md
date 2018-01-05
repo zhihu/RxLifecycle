@@ -15,8 +15,6 @@ Observable.interval(0, 2, TimeUnit.SECONDS)
 
 More usages can be found in the [example](example/src/main/java/cn/nekocode/rxlifecycle/sample/MainActivity.java).
 
-![](art/preview.png)
-
 To integrate this library to your project, you need add the JitPack repository to `build.gradle` repositories firstly.
 
 ```gradle
