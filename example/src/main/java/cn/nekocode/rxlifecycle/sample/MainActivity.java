@@ -112,9 +112,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void testFlowable() {
         Flowable.interval(0, 2, TimeUnit.SECONDS)
-                .compose(RxLifecycle.bind(this).<Long>cancelFlowableWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bind(this).<Long>cancelFlowableWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long n) throws Exception {
@@ -125,9 +125,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void testObservable() {
         Observable.interval(0, 2, TimeUnit.SECONDS)
-                .compose(RxLifecycle.bind(this).<Long>disposeObservableWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bind(this).<Long>disposeObservableWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long n) throws Exception {
@@ -138,9 +138,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void testCompletable() {
         Completable.timer(3, TimeUnit.SECONDS)
-                .compose(RxLifecycle.bind(this).disposeCompletableWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bind(this).disposeCompletableWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
@@ -151,9 +151,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void testSingle() {
         Single.timer(3, TimeUnit.SECONDS)
-                .compose(RxLifecycle.bind(this).<Long>disposeSingleWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bind(this).<Long>disposeSingleWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long n) throws Exception {
@@ -164,9 +164,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void testMaybe() {
         Maybe.timer(3, TimeUnit.SECONDS)
-                .compose(RxLifecycle.bind(this).<Long>disposeMaybeWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bind(this).<Long>disposeMaybeWhen(LifecycleEvent.DESTROY_VIEW))
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long n) throws Exception {

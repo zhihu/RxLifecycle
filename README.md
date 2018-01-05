@@ -2,20 +2,21 @@ RxLifecyle is a library that can help you to unsubscribe the observable sequence
 
 - This library will actually unsubscribe the sequence (See [here](https://github.com/trello/RxLifecycle#unsubscription)). It means that the downstream observer will not receive `onComplete()`, `onError()`... anymore when the unsubscription occurs.
 
-- This library needn't you to inherit any activity or fragment. It will insert a non-gui fragment to your activity or fragment to listen the lifecycle events.
+- This library doesn't require you to inherit any activity or fragment. It will insert a non-gui fragment to your activity or fragment to listen the lifecycle events.
 
 The simplest usage:
 
 ```java
 Observable.interval(0, 2, TimeUnit.SECONDS)
+        // ...
         .compose(RxLifecycle.bind(this)
                 .<Long>disposeObservableWhen(LifecycleEvent.DESTROY_VIEW))
         .subscribe();
 ```
 
-More usages can be found in the [example](example/src/main/java/cn/nekocode/rxlifecycle/sample/MainActivity.java).
+In order to make sure the downstream will not continue to emit items, you need to put the `compose(RxLifecycle.bind ..)` at the bottom of the chain call. See the [example](example/src/main/java/cn/nekocode/rxlifecycle/sample/MainActivity.java) for more usages.
 
-To integrate this library to your project, you need add the JitPack repository to `build.gradle` repositories firstly.
+To integrate this library to your project, you need to add the JitPack repository to `build.gradle` repositories firstly.
 
 ```gradle
 repositories {
