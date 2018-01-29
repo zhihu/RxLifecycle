@@ -14,7 +14,7 @@ Observable.interval(0, 2, TimeUnit.SECONDS)
         .subscribe();
 ```
 
-In order to make sure the downstream will not continue to emit items, you need to put the `compose(RxLifecycle.bind ..)` at the bottom of the chain call. See the [example](example/src/main/java/cn/nekocode/rxlifecycle/sample/MainActivity.java) for more usages.
+In order to make sure the downstream will not continue to emit items, you need to put the `compose(RxLifecycle.bind ..)` at the bottom of the chain call. See the [example](example/src/main/java/cn/nekocode/rxlifecycle/sample/MainActivity.java) for learning more usages.
 
 To integrate this library to your project, you need to add the JitPack repository to `build.gradle` repositories firstly.
 
