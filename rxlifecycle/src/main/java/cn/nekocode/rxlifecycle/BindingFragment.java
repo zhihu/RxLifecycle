@@ -22,9 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -61,11 +59,10 @@ public class BindingFragment extends Fragment {
         mLifecycleBehavior.onNext(LifecycleEvent.CREATE);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mLifecycleBehavior.onNext(LifecycleEvent.CREATE_VIEW);
-        return null;
     }
 
     @Override
