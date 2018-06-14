@@ -18,11 +18,10 @@ package cn.nekocode.rxlifecycle.compact;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import cn.nekocode.rxlifecycle.LifecycleEvent;
 import io.reactivex.subjects.BehaviorSubject;
@@ -59,11 +58,10 @@ public class BindingV4Fragment extends Fragment {
         mLifecycleBehavior.onNext(LifecycleEvent.CREATE);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mLifecycleBehavior.onNext(LifecycleEvent.CREATE_VIEW);
-        return null;
     }
 
     @Override
